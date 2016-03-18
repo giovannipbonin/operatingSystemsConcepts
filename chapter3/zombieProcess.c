@@ -16,9 +16,9 @@ int main()
     }
     else if (pid == 0)
     {
-        sleep(10);
         _exit(0);
     }
+    sleep(10);
     waitpid(pid, NULL, 0);
 }
 
