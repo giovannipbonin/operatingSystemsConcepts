@@ -24,6 +24,6 @@ int main(int argc, char** argv)
 {
    int n = strtol(argv[1], NULL, 10);
    collatz(n);
-}
+
 
 
