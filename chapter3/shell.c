@@ -2,7 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-
+#include <stdbool.h>
 
 #define MAX_LINE 80 /* The maximum length command */
 
@@ -10,11 +10,13 @@ int main(void)
 {
     char *args[MAX_LINE/2 + 1];
     char input[MAX_LINE];
+    bool concurrent;
     int should_run = 1;
     pid_t pid;
 
     while (should_run)
     {
+        concurrent = false;
         // Read user input
         printf("osh> "); 
         fflush(stdout);
@@ -40,6 +42,11 @@ int main(void)
             should_run = 0;
             return 0;
         }
+        if (strcmp(args[i-1], "&") == 0)
+        {
+           concurrent = true; 
+           args[i-1] = NULL;
+        }
         pid = fork();
         if (pid < 0)
         {
@@ -52,12 +59,10 @@ int main(void)
         }
         else
         {
-            /*
-            if (strcmp(args[i - 1], "&\n") == 0)
+            if (!concurrent)
             {
-                printf("works");
                 waitpid(pid, NULL, 0);
-            }*/
+            }
         }
     }
     return 0;
