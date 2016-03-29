@@ -43,7 +43,6 @@ int main(void)
             {
                 printf("%d %s", countHistory[j], history[j]);
             }
-            return 0;
         }
         else if(args[0][0] == '!')
         {
