@@ -48,13 +48,24 @@ int main(void)
                 {
                     fprintf(stderr, "Error, no previous command\n");
                 }
-                strcpy(input, history[(currentCommand - 1) % MAX_HISTORY]);
-                i = parseCommand(input, args);        
+                else
+                {
+                    strcpy(input, history[(currentCommand - 1) % MAX_HISTORY]);
+                    i = parseCommand(input, args);        
+                }
             }
             else
             {
                 int count = (int)args[0][1] - '0';
-                printf("%d", count);
+                if (count < currentCommand)
+                {
+                    strcpy(input, history[count]);
+                    i = parseCommand(input, args);
+                }
+                else
+                {
+                    fprintf(stderr, "Error, no previous command for this number\n");
+                }
             }
         }
         if (strcmp(args[i-1], "&") == 0)
