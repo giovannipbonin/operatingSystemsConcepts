@@ -38,6 +38,11 @@ int main(void)
         }
         else if(strcmp(args[0], "history") == 0)
         {
+            int j;
+            for (j=0; j < (currentCommand % 10); j++)
+            {
+                printf("%d %s", countHistory[j], history[j]);
+            }
             return 0;
         }
         else if(args[0][0] == '!')
