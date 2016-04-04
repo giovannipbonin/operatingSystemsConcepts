@@ -2,18 +2,23 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <stdio.h>
 
 struct task_struct *task;
 
-int ps_init()
+int ps_init(void)
 {
-    int i = 0;
     for_each_process(task)
     {
-        printf("%d\n", i);
-        i++;
+	printk(KERN_INFO "Name: %s State: %d PID: %d\n", task->comm, task->state, task->pid);
     }
+    return 0;
 }
+
+void ps_exit(void)
+{
+}
+
+module_init(ps_init);
+module_exit(ps_exit);
 
 
