@@ -6,7 +6,7 @@
 
 int ps_init(void)
 {
-    truct task_struct *task;
+    struct task_struct *task;
     for_each_process(task)
     {
         printk(KERN_INFO "Name: %s State: %d PID: %d\n", task->comm, task->state, task->pid);
