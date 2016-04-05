@@ -7,10 +7,10 @@
 void dfs_task(struct task_struct *headTask)
 {
     if (headTask == NULL) return;
-    printk(KERN_INFO "Name: %s State: %d PID: %d\n", task->comm, task->state, task->pid);
+    printk(KERN_INFO "Name: %s State: %d PID: %d\n", headTask->comm, headTask->state, headTask->pid);
     struct list_head *list;
     struct task_struct *new_task;
-    list_for_each(list, &task->children)
+    list_for_each(list, &headTask->children)
     {
         new_task = list_entry(list, struct task_struct, sibling);
         dfs_task(new_task);
