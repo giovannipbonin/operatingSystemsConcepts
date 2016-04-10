@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MIN_PID 10
-#define MAX_PID 20
+#define MIN_PID 300 
+#define MAX_PID 5000
 #define SIZE MAX_PID - MIN_PID + 1
 
 char *bit_map;
