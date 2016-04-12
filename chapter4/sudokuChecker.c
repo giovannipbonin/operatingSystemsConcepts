@@ -9,6 +9,7 @@ typedef struct
 {
     int row;
     int column;
+    int thread;
 } parameters;
 
 
@@ -53,40 +54,56 @@ bool checkSubgrid(int arr[9][9], int row, int col)
 }
 
 
-int sudoku[9][9] = {{1,2,3,4,5,6,7,8,9},{4,5,6,1,2,3,7,8,9},{7,8,9,7,8,9,7,8,9}, {1,2,3,4,5,9,7,8,9},{1,2,3,4,5,1,7,8,9},{1,2,3,4,5,2,7,8,9},{1,2,3,4,5,3,7,8,9},{1,2,3,4,5,4,7,8,9},{1,2,3,4,5,5,7,8,9}};
-
-
-
-
-
-
+static int sudoku[9][9];
 
 int results[11];
+
+void *subgridCheck(void *param)
+{
+    parameters *data = (parameters*) param;
+    int i,j, threadNum;
+    i = data->row; j = data->column; threadNum = data->thread;
+    if (!checkSubgrid(sudoku, i, j))
+    {
+        results[threadNum] = 0;
+        pthread_exit(0);
+    }
+    else
+    {
+        results[threadNum] = 1;
+        pthread_exit(0);
+    }
+}
 
 void *rowsCheck(void *param)
 {
     int i;
     for (i=0; i < 9; i++)
     {
-        if (!checkRow(sudoku, i));
+        if (!checkRow(sudoku, i))
         {
             results[0] = 0;
-            return NULL;
+            pthread_exit(0);
         }
     }
+    results[0] = 1;
+    pthread_exit(0);
 }
+
 
 void *columnsCheck(void *param)
 {
     int i;
     for (i=0; i < 9; i++)
     {
-        if(!checkRow(sudoku, i))
+        if(!checkColumn(sudoku, i))
         {
             results[1] = 0;
-            return NULL;
+            pthread_exit(0);
         }
     }
+    results[1] = 1;
+    pthread_exit(0);
 }
 
 
@@ -94,7 +111,17 @@ void *columnsCheck(void *param)
 
 int main()
 {
-    /*
+    FILE *file = fopen("sudoku.txt", "r");
+    int i, j;
+    bool success;
+    for (i=0; i < 9; i++)
+    {
+        for (j=0; j < 9; j++)
+        {
+            fscanf(file, "%d", &sudoku[i][j]);        
+        }
+    }
+    fclose(file);
     pthread_t threads[11];
     int currentThread = 0;
     // Check columns
@@ -103,21 +130,41 @@ int main()
     // Check rows
     pthread_create(&threads[currentThread], NULL, columnsCheck, NULL);
     currentThread++;
+    parameters *data[9];
     // Check subgrids
-    int i, j;
     for (i = 0; i < 9; i += 3)
     {
         for (j = 0; j < 9; j += 3)
         {
-            parameters *data = (parameters *) malloc(sizeof(parameters)); 
-            data->row = i; data->column = j;
-            pthread_create(&threads[currentThread], NULL, subgridCheck, (void *) data);
+            data[currentThread - 2] = (parameters *) malloc(sizeof(parameters)); 
+            data[currentThread - 2]->row = i; data[currentThread - 2]->column = j; data[currentThread - 2]->thread = currentThread;
+            success = pthread_create(&threads[currentThread], NULL, subgridCheck, (void *) data[currentThread - 2]);
+            if (success != 0)
+            {
+                fprintf(stderr, "Error creating thread");
+                return -1;
+            }
             currentThread++;
         }
     }
-    */
-    printf("row: %d", checkRow(sudoku, 1));
-    printf("col: %d", checkColumn(sudoku, 5));
-    printf("grid: %d", checkSubgrid(sudoku, 0, 3));
-
+    for (i=0; i < 11; i++)
+    {
+        success = pthread_join(threads[i], NULL);
+        if (success != 0)
+        {
+            fprintf(stderr, "Error joining thread");
+            return -1;
+        }
+    }
+    printf("Threads have been completed\n");
+    for (currentThread=0; currentThread < 11; currentThread++)
+    {
+        if(results[currentThread] != 1)
+        {
+            printf("Invalid sudoku\n");
+            exit(EXIT_SUCCESS);
+        }
+    }
+    printf("Valid sudoku\n");
+    exit(EXIT_SUCCESS);
 }
